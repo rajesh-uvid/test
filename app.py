@@ -301,74 +301,111 @@ YOUTUBE_URL   = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/m
 INSTAGRAM_URL = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/image/socialMedia/instagram.png"
 
 sig_html = f"""<table cellpadding="0" cellspacing="0" border="0"
-    style="font-family: 'Roboto', Arial, sans-serif; font-weight:400; color: #333333; width: 600px;
-           border-collapse: collapse; table-layout: fixed;">
+    style="font-family: Arial, sans-serif; color: #333333; width: 600px; border-collapse: collapse;">
 
     <!-- Row 1: Logo + Info -->
     <tr>
-        <td valign="middle" style="padding: 0 16px 0 0; width: 190px;">
-            <a href="https://uvidconsulting.com/" target="_blank" style="text-decoration:none;">
+        <!-- Logo cell — fixed 200px -->
+        <td width="200" valign="middle"
+            style="width:200px; padding:0 16px 0 0; vertical-align:middle;">
+            <a href="https://uvidconsulting.com/" target="_blank"
+               style="text-decoration:none; border:0;">
                 <img src="{LOGO_URL}"
-                     alt="UVID Consulting" width="180"
-                     style="display:block; border:0; outline:none; text-decoration:none;">
+                     alt="UVID Consulting"
+                     width="180" height="auto"
+                     style="display:block; border:0; outline:none;
+                            text-decoration:none; width:180px; height:auto;">
             </a>
         </td>
-        <td valign="middle"
-            style="border-left: 2px solid #cccccc; padding-left: 16px;">
+
+        <!-- Divider -->
+        <td width="2" style="width:2px; background-color:#cccccc; padding:0; font-size:0; line-height:0;">
+            &nbsp;
+        </td>
+
+        <!-- Info cell -->
+        <td valign="middle" style="padding:0 0 0 16px; vertical-align:middle;">
 
             <!-- Name -->
-            <div style="font-size:12pt; font-weight:400; color:#000000; margin-bottom:0px; line-height:1.4;">
+            <p style="margin:0 0 1px 0; padding:0;
+                      font-family:Arial,sans-serif; font-size:12pt;
+                      font-weight:bold; color:#000000; line-height:1.3;">
                 {name}
-            </div>
+            </p>
 
             <!-- Designation -->
-            <div style="font-size:10pt; font-weight:400; color:#555555; margin-bottom:4px; line-height:1.4;">
+            <p style="margin:0 0 4px 0; padding:0;
+                      font-family:Arial,sans-serif; font-size:10pt;
+                      font-weight:normal; color:#555555; line-height:1.3;">
                 {designation}
-            </div>
+            </p>
 
-            <!-- Contact -->
-            <div style="font-size:10pt; font-weight:400; color:#333333; line-height:1.5;">
-                {phone_html}
+            <!-- Phone (optional) -->
+            {f'<p style="margin:0; padding:0; font-family:Arial,sans-serif; font-size:10pt; color:#333333; line-height:1.5;">{phone}</p>' if phone and phone.strip() else ''}
+
+            <!-- Email -->
+            <p style="margin:0; padding:0; line-height:1.5;">
                 <a href="mailto:{email}"
-                   style="color:#333333; text-decoration:none; display:block; font-weight:400;">{email}</a>
-                <a href="https://www.uvidconsulting.com"
-                   style="color:#333333; text-decoration:none; display:block; font-weight:400;">
-                   www.uvidconsulting.com
+                   style="font-family:Arial,sans-serif; font-size:10pt;
+                          color:#333333; text-decoration:none;">
+                    {email}
                 </a>
-            </div>
+            </p>
 
-            <!-- Social Icons: forced equal height via table cell -->
-            <div style="margin-top:8px; line-height:0; font-size:0;">
-                <a href="https://www.linkedin.com/company/uvidconsulting" target="_blank"
-                   style="text-decoration:none; display:inline-block; margin-right:6px;">
-                    <img src="{LINKEDIN_URL}" alt="LinkedIn"
-                         width="28" height="28"
-                         style="display:block; border:0; width:28px; height:28px;">
+            <!-- Website -->
+            <p style="margin:0 0 6px 0; padding:0; line-height:1.5;">
+                <a href="https://www.uvidconsulting.com"
+                   style="font-family:Arial,sans-serif; font-size:10pt;
+                          color:#333333; text-decoration:none;">
+                    www.uvidconsulting.com
                 </a>
-                <a href="https://www.youtube.com/@uvidconsulting" target="_blank"
-                   style="text-decoration:none; display:inline-block; margin-right:6px;">
-                    <img src="{YOUTUBE_URL}" alt="YouTube"
-                         width="32" height="34"
-                         style="display:block; border:0; width:32px; height:34px;">
-                </a>
-                <a href="https://www.instagram.com/uvidconsulting" target="_blank"
-                   style="text-decoration:none; display:inline-block;">
-                    <img src="{INSTAGRAM_URL}" alt="Instagram"
-                         width="28" height="30"
-                         style="display:block; border:0; width:28px; height:30px;">
-                </a>
-            </div>
+            </p>
+
+            <!-- Social Icons — TABLE layout (Outlook Classic safe) -->
+            <table cellpadding="0" cellspacing="0" border="0"
+                   style="border-collapse:collapse;
+                          mso-table-lspace:0pt; mso-table-rspace:0pt;">
+                <tr>
+                    <td width="34" style="width:34px; padding:0; vertical-align:middle;">
+                        <a href="https://www.linkedin.com/company/uvidconsulting"
+                           target="_blank" style="text-decoration:none; border:0;">
+                            <img src="{LINKEDIN_URL}" alt="LinkedIn"
+                                 width="28" height="28"
+                                 style="display:block; border:0; width:28px; height:28px;">
+                        </a>
+                    </td>
+                    <td width="38" style="width:38px; padding:0; vertical-align:middle;">
+                        <a href="https://www.youtube.com/@uvidconsulting"
+                           target="_blank" style="text-decoration:none; border:0;">
+                            <img src="{YOUTUBE_URL}" alt="YouTube"
+                                 width="32" height="34"
+                                 style="display:block; border:0; width:32px; height:34px;">
+                        </a>
+                    </td>
+                    <td width="34" style="width:34px; padding:0; vertical-align:middle;">
+                        <a href="https://www.instagram.com/uvidconsulting"
+                           target="_blank" style="text-decoration:none; border:0;">
+                            <img src="{INSTAGRAM_URL}" alt="Instagram"
+                                 width="28" height="30"
+                                 style="display:block; border:0; width:28px; height:30px;">
+                        </a>
+                    </td>
+                </tr>
+            </table>
+
         </td>
     </tr>
 
-    <!-- Row 2: Banner (no gap) -->
+    <!-- Row 2: Banner -->
     <tr>
-        <td colspan="2" style="padding-top: 4px; line-height:0; font-size:0;">
-            <a href="{BANNER_LINK}" target="_blank" style="display:block;">
+        <td colspan="3" style="padding-top:4px; line-height:0; font-size:0;">
+            <a href="{BANNER_LINK}" target="_blank"
+               style="text-decoration:none; border:0; display:block;">
                 <img src="{BANNER_URL}"
                      alt="UVID Consulting Banner"
                      width="600"
-                     style="display:block; width:600px; height:auto; border:0; outline:none; margin:0;">
+                     style="display:block; width:600px; max-width:600px;
+                            height:auto; border:0; outline:none;">
             </a>
         </td>
     </tr>
