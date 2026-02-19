@@ -174,71 +174,95 @@ with col3:
 with col4:
     phone = st.text_input("Phone Number (optional)", "", placeholder="+91 98765 43210")
 
-# ── Banner Config: Fetched live from GitHub ──────────────────────
-BANNER_CONFIG_URL = (
-    "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/banner_config.json"
-)
+# ─────────────────────────────────────────────────────────────────────────────
+# Banner: Smart auto-detect — Vercel if live, else direct GitHub URLs
+# ─────────────────────────────────────────────────────────────────────────────
 
-DEFAULT_BANNER_IMAGE = (
-    "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/image/banner/banner.png"
-)
-DEFAULT_BANNER_LINK = "https://www.uvidconsulting.com"
+BANNER_CONFIG_URL   = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/banner_config.json"
+VERCEL_BASE_URL     = "https://test-uvid.vercel.app"   # ← update after Vercel deploy
+VERCEL_IMAGE_EP     = f"{VERCEL_BASE_URL}/api/banner-image"
+VERCEL_CLICK_EP     = f"{VERCEL_BASE_URL}/api/banner-click"
 
-@st.cache_data(ttl=300)  # Re-fetch from GitHub every 5 minutes
-def fetch_banner_config():
-    """Fetch banner image URL and click link from GitHub-hosted JSON config."""
+DEFAULT_BANNER_IMAGE = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/image/banner/banner.png"
+DEFAULT_BANNER_LINK  = "https://www.uvidconsulting.com"
+
+
+@st.cache_data(ttl=300)   # Re-evaluate every 5 minutes
+def resolve_banner():
+    """
+    Priority 1 — Vercel is live: embed Vercel endpoints so the banner
+                  is fully dynamic even in already-sent emails.
+    Priority 2 — Vercel not deployed yet: fetch banner_config.json from
+                  GitHub and embed the direct image/link URLs (static
+                  but always up-to-date for newly generated signatures).
+    Priority 3 — Everything fails: use hardcoded defaults.
+    Returns (banner_url, banner_link, mode)
+      mode = "vercel" | "github" | "default"
+    """
+    # ── Try Vercel ──────────────────────────────────────────────────────────
     try:
-        resp = requests.get(BANNER_CONFIG_URL, timeout=5)
-        resp.raise_for_status()
-        data = resp.json()
-        return (
-            data.get("banner_image_url", DEFAULT_BANNER_IMAGE),
-            data.get("banner_link_url",  DEFAULT_BANNER_LINK),
-            True,   # success
-        )
-    except Exception as e:
-        return (DEFAULT_BANNER_IMAGE, DEFAULT_BANNER_LINK, False)
+        probe = requests.head(VERCEL_IMAGE_EP, timeout=4, allow_redirects=True)
+        if probe.status_code < 500:          # 200, 302 etc. → Vercel is live
+            return (VERCEL_IMAGE_EP, VERCEL_CLICK_EP, "vercel", None, None)
+    except Exception:
+        pass
 
-banner_img_url, banner_link_url, config_ok = fetch_banner_config()
+    # ── Try GitHub config ───────────────────────────────────────────────────
+    try:
+        r = requests.get(BANNER_CONFIG_URL, timeout=5)
+        r.raise_for_status()
+        cfg = r.json()
+        img  = cfg.get("banner_image_url", DEFAULT_BANNER_IMAGE)
+        link = cfg.get("banner_link_url",  DEFAULT_BANNER_LINK)
+        return (img, link, "github", img, link)
+    except Exception:
+        pass
 
-# Show live config status
-if config_ok:
+    # ── Hardcoded defaults ──────────────────────────────────────────────────
+    return (DEFAULT_BANNER_IMAGE, DEFAULT_BANNER_LINK, "default",
+            DEFAULT_BANNER_IMAGE, DEFAULT_BANNER_LINK)
+
+
+BANNER_URL, BANNER_LINK, _mode, _cfg_img, _cfg_link = resolve_banner()
+
+# ── Status badge ─────────────────────────────────────────────────────────────
+if _mode == "vercel":
     st.markdown(f"""
-    <div style="
-        background: rgba(16,185,129,0.08);
-        border: 1px solid rgba(16,185,129,0.25);
-        border-radius: 10px;
-        padding: 0.7rem 1.1rem;
-        font-size: 0.8rem;
-        color: #6ee7b7;
-        margin-bottom: 0.8rem;
-        line-height: 1.7;
-    ">
-        <strong>🟢 Banner config loaded from GitHub</strong><br>
-        <span style="opacity:0.8;">
-        Current image &nbsp;→ <code style="color:#a7f3d0;">{banner_img_url}</code><br>
-        Current link &nbsp;&nbsp;→ <code style="color:#a7f3d0;">{banner_link_url}</code><br><br>
-        <strong style="color:#6ee7b7;">In the signature, the banner uses these Vercel endpoints:</strong><br>
-        Image src &nbsp;→ <code style="color:#fde68a;">{VERCEL_BASE_URL}/api/banner-image</code><br>
-        Click href → <code style="color:#fde68a;">{VERCEL_BASE_URL}/api/banner-click</code><br><br>
-        To update banner/link: edit <code>banner_config.json</code> → push to GitHub.<br>
-        ✅ <em>Every future email open will show the new banner automatically.</em>
+    <div style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.3);
+                border-radius:10px; padding:0.7rem 1.1rem; font-size:0.8rem;
+                color:#6ee7b7; margin-bottom:0.8rem; line-height:1.8;">
+        <strong>🟢 Mode: Vercel (fully dynamic)</strong><br>
+        <span style="opacity:0.85;">
+        Banner <code>src</code> &nbsp;→ <code style="color:#fde68a;">{VERCEL_IMAGE_EP}</code><br>
+        Banner <code>href</code> → <code style="color:#fde68a;">{VERCEL_CLICK_EP}</code><br>
+        ✅ <em>Already-sent emails will update automatically when you change
+        <code>banner_config.json</code> on GitHub.</em>
         </span>
     </div>
     """, unsafe_allow_html=True)
+
+elif _mode == "github":
+    st.markdown(f"""
+    <div style="background:rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.3);
+                border-radius:10px; padding:0.7rem 1.1rem; font-size:0.8rem;
+                color:#93c5fd; margin-bottom:0.8rem; line-height:1.8;">
+        <strong>🔵 Mode: GitHub config (static URLs in signature)</strong><br>
+        <span style="opacity:0.85;">
+        Vercel not detected — using direct URLs from <code>banner_config.json</code>.<br>
+        Banner image → <code style="color:#bfdbfe;">{_cfg_img}</code><br>
+        Banner link &nbsp;→ <code style="color:#bfdbfe;">{_cfg_link}</code><br>
+        ⚠️ <em>Already-sent emails won't update. Deploy to Vercel for dynamic banners.</em>
+        </span>
+    </div>
+    """, unsafe_allow_html=True)
+
 else:
     st.markdown("""
-    <div style="
-        background: rgba(251,191,36,0.08);
-        border: 1px solid rgba(251,191,36,0.3);
-        border-radius: 10px;
-        padding: 0.7rem 1.1rem;
-        font-size: 0.8rem;
-        color: #fde68a;
-        margin-bottom: 0.8rem;
-    ">
-        <strong>⚠️ Could not fetch banner config from GitHub</strong> — using defaults.
-        Check that <code>banner_config.json</code> exists in your repo and is public.
+    <div style="background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.3);
+                border-radius:10px; padding:0.7rem 1.1rem; font-size:0.8rem;
+                color:#fca5a5; margin-bottom:0.8rem;">
+        <strong>🔴 Mode: Defaults (no config reachable)</strong><br>
+        Using hardcoded fallback URLs. Check your internet / GitHub repo visibility.
     </div>
     """, unsafe_allow_html=True)
 
@@ -252,22 +276,10 @@ phone_html = (
     f'{phone}</span>'
 ) if phone and phone.strip() else ""
 
-# ── Vercel endpoint base ──────────────────────────────────────────────────
-# After deploying to Vercel, replace this with your actual Vercel project URL.
-# e.g. "https://test-abc123.vercel.app"
-VERCEL_BASE_URL = "https://test-uvid.vercel.app"
-
-# PNG images hosted on GitHub (Outlook-compatible)
 LOGO_URL      = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/image/uvid/uvid.png"
-
-# These two endpoints are what goes into the signature HTML:
-#   banner-image → Vercel fetches banner_config.json → proxies the real image
-#   banner-click → Vercel fetches banner_config.json → 302 to the real link
-BANNER_URL    = f"{VERCEL_BASE_URL}/api/banner-image"   # ← dynamic via Vercel
-BANNER_LINK   = f"{VERCEL_BASE_URL}/api/banner-click"   # ← dynamic via Vercel
-LINKEDIN_URL   = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/image/socialMedia/linkedin.png"
-YOUTUBE_URL    = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/image/socialMedia/youtube.png"
-INSTAGRAM_URL  = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/image/socialMedia/instagram.png"
+LINKEDIN_URL  = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/image/socialMedia/linkedin.png"
+YOUTUBE_URL   = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/image/socialMedia/youtube.png"
+INSTAGRAM_URL = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/image/socialMedia/instagram.png"
 
 sig_html = f"""<table cellpadding="0" cellspacing="0" border="0"
     style="font-family: 'Roboto', Arial, sans-serif; font-weight:400; color: #333333; width: 600px;
