@@ -1,5 +1,6 @@
 import streamlit as st
 import streamlit.components.v1 as components
+import requests
 
 # ─────────────────────────────────────────────
 # 1. Page Config
@@ -171,7 +172,70 @@ with col2:
 with col3:
     email = st.text_input("Email Address", "ali@uvidconsulting.com", placeholder="ali@uvidconsulting.com")
 with col4:
-    phone = st.text_input("Phone Number", "+91 00000 00000", placeholder="+91 98765 43210")
+    phone = st.text_input("Phone Number (optional)", "", placeholder="+91 98765 43210")
+
+# ── Banner Config: Fetched live from GitHub ──────────────────────
+BANNER_CONFIG_URL = (
+    "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/banner_config.json"
+)
+
+DEFAULT_BANNER_IMAGE = (
+    "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/image/banner/banner.png"
+)
+DEFAULT_BANNER_LINK = "https://www.uvidconsulting.com"
+
+@st.cache_data(ttl=300)  # Re-fetch from GitHub every 5 minutes
+def fetch_banner_config():
+    """Fetch banner image URL and click link from GitHub-hosted JSON config."""
+    try:
+        resp = requests.get(BANNER_CONFIG_URL, timeout=5)
+        resp.raise_for_status()
+        data = resp.json()
+        return (
+            data.get("banner_image_url", DEFAULT_BANNER_IMAGE),
+            data.get("banner_link_url",  DEFAULT_BANNER_LINK),
+            True,   # success
+        )
+    except Exception as e:
+        return (DEFAULT_BANNER_IMAGE, DEFAULT_BANNER_LINK, False)
+
+banner_img_url, banner_link_url, config_ok = fetch_banner_config()
+
+# Show live config status
+if config_ok:
+    st.markdown(f"""
+    <div style="
+        background: rgba(16,185,129,0.08);
+        border: 1px solid rgba(16,185,129,0.25);
+        border-radius: 10px;
+        padding: 0.7rem 1.1rem;
+        font-size: 0.8rem;
+        color: #6ee7b7;
+        margin-bottom: 0.8rem;
+        line-height: 1.7;
+    ">
+        <strong>🟢 Banner config loaded from GitHub</strong><br>
+        <span style="opacity:0.8;">Image &nbsp;→ <code style="color:#a7f3d0;">{banner_img_url}</code><br>
+        Click &nbsp;&nbsp;→ <code style="color:#a7f3d0;">{banner_link_url}</code><br>
+        To update: edit <code>banner_config.json</code> in your GitHub repo and push.
+        App refreshes within <strong>5 min</strong>.</span>
+    </div>
+    """, unsafe_allow_html=True)
+else:
+    st.markdown("""
+    <div style="
+        background: rgba(251,191,36,0.08);
+        border: 1px solid rgba(251,191,36,0.3);
+        border-radius: 10px;
+        padding: 0.7rem 1.1rem;
+        font-size: 0.8rem;
+        color: #fde68a;
+        margin-bottom: 0.8rem;
+    ">
+        <strong>⚠️ Could not fetch banner config from GitHub</strong> — using defaults.
+        Check that <code>banner_config.json</code> exists in your repo and is public.
+    </div>
+    """, unsafe_allow_html=True)
 
 st.markdown("<br>", unsafe_allow_html=True)
 
@@ -180,18 +244,19 @@ st.markdown("<br>", unsafe_allow_html=True)
 # ─────────────────────────────────────────────
 phone_html = (
     f'<span style="display:block; margin-bottom:3px; font-size:10pt; color:#333333;">'
-    f'📞 {phone}</span>'
-) if phone else ""
+    f'{phone}</span>'
+) if phone and phone.strip() else ""
 
-# NOTE: Using .png version of logo for Outlook compatibility (SVG not supported in Outlook)
-LOGO_URL       = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/image/uvid/uvid.svg"
-BANNER_URL     = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/image/banner/banner.png"
+# PNG images hosted on GitHub (Outlook-compatible)
+LOGO_URL       = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/image/uvid/uvid.png"
+BANNER_URL     = banner_img_url    # ← editable from UI
+BANNER_LINK    = banner_link_url   # ← editable from UI
 LINKEDIN_URL   = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/image/socialMedia/linkedin.png"
 YOUTUBE_URL    = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/image/socialMedia/youtube.png"
 INSTAGRAM_URL  = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/image/socialMedia/instagram.png"
 
 sig_html = f"""<table cellpadding="0" cellspacing="0" border="0"
-    style="font-family: Arial, sans-serif; color: #333333; width: 600px;
+    style="font-family: 'Roboto', Arial, sans-serif; font-weight:400; color: #333333; width: 600px;
            border-collapse: collapse; table-layout: fixed;">
 
     <!-- Row 1: Logo + Info -->
@@ -207,58 +272,58 @@ sig_html = f"""<table cellpadding="0" cellspacing="0" border="0"
             style="border-left: 2px solid #cccccc; padding-left: 16px;">
 
             <!-- Name -->
-            <div style="font-size:14pt; font-weight:bold; color:#000000; margin-bottom:2px;">
+            <div style="font-size:13pt; font-weight:400; color:#000000; margin-bottom:0px; line-height:1.4;">
                 {name}
             </div>
 
             <!-- Designation -->
-            <div style="font-size:10pt; color:#555555; margin-bottom:8px;">
+            <div style="font-size:10pt; font-weight:400; color:#555555; margin-bottom:4px; line-height:1.4;">
                 {designation}
             </div>
 
             <!-- Contact -->
-            <div style="font-size:10pt; color:#333333; line-height:1.7;">
+            <div style="font-size:10pt; font-weight:400; color:#333333; line-height:1.5;">
                 {phone_html}
                 <a href="mailto:{email}"
-                   style="color:#1d4ed8; text-decoration:none; display:block;">{email}</a>
+                   style="color:#333333; text-decoration:none; display:block; font-weight:400;">{email}</a>
                 <a href="https://www.uvidconsulting.com"
-                   style="color:#1d4ed8; text-decoration:none; display:block;">
+                   style="color:#333333; text-decoration:none; display:block; font-weight:400;">
                    www.uvidconsulting.com
                 </a>
             </div>
 
-            <!-- Social Icons -->
-            <div style="margin-top:10px;">
+            <!-- Social Icons: forced equal height via table cell -->
+            <div style="margin-top:8px; line-height:0; font-size:0;">
                 <a href="https://www.linkedin.com/company/uvidconsulting" target="_blank"
-                   style="text-decoration:none; margin-right:6px;">
+                   style="text-decoration:none; display:inline-block; margin-right:6px;">
                     <img src="{LINKEDIN_URL}" alt="LinkedIn"
-                         width="24" height="24"
-                         style="display:inline-block; border:0; vertical-align:middle;">
+                         width="28" height="28"
+                         style="display:block; border:0; width:28px; height:28px;">
                 </a>
                 <a href="https://www.youtube.com/@uvidconsulting" target="_blank"
-                   style="text-decoration:none; margin-right:6px;">
+                   style="text-decoration:none; display:inline-block; margin-right:6px;">
                     <img src="{YOUTUBE_URL}" alt="YouTube"
-                         width="24" height="24"
-                         style="display:inline-block; border:0; vertical-align:middle;">
+                         width="28" height="28"
+                         style="display:block; border:0; width:28px; height:28px;">
                 </a>
                 <a href="https://www.instagram.com/uvidconsulting" target="_blank"
-                   style="text-decoration:none;">
+                   style="text-decoration:none; display:inline-block;">
                     <img src="{INSTAGRAM_URL}" alt="Instagram"
-                         width="24" height="24"
-                         style="display:inline-block; border:0; vertical-align:middle;">
+                         width="28" height="28"
+                         style="display:block; border:0; width:28px; height:28px;">
                 </a>
             </div>
         </td>
     </tr>
 
-    <!-- Row 2: Banner -->
+    <!-- Row 2: Banner (no gap) -->
     <tr>
-        <td colspan="2" style="padding-top: 18px;">
-            <a href="https://www.uvidconsulting.com" target="_blank">
+        <td colspan="2" style="padding-top: 0; margin: 10px; line-height:0; font-size:0;">
+            <a href="{BANNER_LINK}" target="_blank" style="display:block;">
                 <img src="{BANNER_URL}"
                      alt="UVID Consulting Banner"
                      width="600"
-                     style="display:block; width:600px; height:auto; border:0; outline:none;">
+                     style="display:block; width:600px; height:auto; border:0; outline:none; margin:0;">
             </a>
         </td>
     </tr>
@@ -287,46 +352,51 @@ preview_and_copy = f"""
 <html>
 <head>
 <meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
 <style>
   * {{ margin: 0; padding: 0; box-sizing: border-box; }}
   body {{
-    font-family: Arial, sans-serif;
+    font-family: 'Roboto', Arial, sans-serif;
+    font-weight: 400;
     background: #ffffff;
-    padding: 24px;
+    padding: 24px 24px 16px 24px;
   }}
   .sig-wrapper {{
-    display: inline-block;
+    display: block;
   }}
   .actions {{
-    margin-top: 20px;
+    margin-top: 16px;
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
+    align-items: center;
   }}
   button {{
-    padding: 10px 22px;
-    font-size: 14px;
-    font-weight: 600;
+    padding: 9px 22px;
+    font-size: 13px;
+    font-weight: 500;
     border: none;
-    border-radius: 8px;
+    border-radius: 7px;
     cursor: pointer;
     transition: all 0.2s ease;
-    font-family: Arial, sans-serif;
+    font-family: 'Roboto', Arial, sans-serif;
+    letter-spacing: 0.2px;
   }}
   #copyBtn {{
     background: linear-gradient(135deg, #1d4ed8, #3b82f6);
     color: #ffffff;
+    box-shadow: 0 2px 8px rgba(59,130,246,0.35);
   }}
   #copyBtn:hover {{ opacity: 0.88; transform: translateY(-1px); }}
   #copyBtn.success {{
     background: linear-gradient(135deg, #059669, #10b981);
+    box-shadow: 0 2px 8px rgba(16,185,129,0.35);
   }}
   .note {{
-    margin-top: 14px;
-    font-size: 12px;
+    margin-top: 10px;
+    font-size: 11.5px;
     color: #64748b;
-    line-height: 1.6;
-    max-width: 600px;
+    line-height: 1.5;
   }}
 </style>
 </head>
@@ -337,11 +407,11 @@ preview_and_copy = f"""
 </div>
 
 <div class="actions">
-  <button id="copyBtn" onclick="copySignature()">📋 Copy Signature for Outlook</button>
+  <button id="copyBtn" onclick="copySignature()">&#128203; Copy Signature for Outlook</button>
 </div>
 
 <p class="note">
-  ✅ Click the button above → then open Outlook → New Signature → paste with <strong>Ctrl+V</strong>
+  &#10003; Click above &rarr; open Outlook &rarr; New Signature &rarr; paste with <strong>Ctrl+V</strong>
 </p>
 
 <script>
@@ -350,21 +420,17 @@ async function copySignature() {{
   const sigEl = document.getElementById('sig');
 
   try {{
-    // Method 1: Modern Clipboard API — copies styled HTML (works in Chrome/Edge)
     const htmlContent = sigEl.innerHTML;
     const blob = new Blob([htmlContent], {{ type: 'text/html' }});
     const plainText = sigEl.innerText;
     const textBlob = new Blob([plainText], {{ type: 'text/plain' }});
-
     const clipItem = new ClipboardItem({{
       'text/html': blob,
       'text/plain': textBlob
     }});
     await navigator.clipboard.write([clipItem]);
-    showSuccess(btn, '✅ Copied! Paste in Outlook');
-
+    showSuccess(btn, '&#10003; Copied! Paste in Outlook');
   }} catch(e) {{
-    // Method 2: Fallback — select DOM range and execCommand
     try {{
       const range = document.createRange();
       range.selectNodeContents(sigEl);
@@ -373,9 +439,9 @@ async function copySignature() {{
       sel.addRange(range);
       document.execCommand('copy');
       sel.removeAllRanges();
-      showSuccess(btn, '✅ Copied! Paste in Outlook');
+      showSuccess(btn, '&#10003; Copied! Paste in Outlook');
     }} catch(e2) {{
-      btn.textContent = '❌ Copy failed — use Download instead';
+      btn.textContent = 'Copy failed — use Download instead';
       btn.style.background = '#dc2626';
     }}
   }}
@@ -396,7 +462,7 @@ function showSuccess(btn, msg) {{
 """
 
 # Render the preview inside an iframe
-components.html(preview_and_copy, height=320, scrolling=False)
+components.html(preview_and_copy, height=560, scrolling=False)
 
 # ─────────────────────────────────────────────
 # 7. Download Button
@@ -442,9 +508,8 @@ with info_col:
 with st.expander("🔧 View Raw HTML Code (for advanced users)", expanded=False):
     st.markdown("""
     <div class="info-box">
-        ⚠️ <strong>Note about SVG logo:</strong> Outlook does not support SVG images.
-        If your logo doesn't appear in Outlook, replace the <code>uvid.svg</code> URL with a
-        <code>.png</code> version hosted on GitHub or any public URL.
+        ✅ <strong>All images are .png</strong> — fully compatible with Outlook.
+        Copy the HTML below or use the Download button to get your signature file.
     </div>
     """, unsafe_allow_html=True)
     st.code(sig_html, language="html")
