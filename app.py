@@ -215,10 +215,15 @@ if config_ok:
         line-height: 1.7;
     ">
         <strong>🟢 Banner config loaded from GitHub</strong><br>
-        <span style="opacity:0.8;">Image &nbsp;→ <code style="color:#a7f3d0;">{banner_img_url}</code><br>
-        Click &nbsp;&nbsp;→ <code style="color:#a7f3d0;">{banner_link_url}</code><br>
-        To update: edit <code>banner_config.json</code> in your GitHub repo and push.
-        App refreshes within <strong>5 min</strong>.</span>
+        <span style="opacity:0.8;">
+        Current image &nbsp;→ <code style="color:#a7f3d0;">{banner_img_url}</code><br>
+        Current link &nbsp;&nbsp;→ <code style="color:#a7f3d0;">{banner_link_url}</code><br><br>
+        <strong style="color:#6ee7b7;">In the signature, the banner uses these Vercel endpoints:</strong><br>
+        Image src &nbsp;→ <code style="color:#fde68a;">{VERCEL_BASE_URL}/api/banner-image</code><br>
+        Click href → <code style="color:#fde68a;">{VERCEL_BASE_URL}/api/banner-click</code><br><br>
+        To update banner/link: edit <code>banner_config.json</code> → push to GitHub.<br>
+        ✅ <em>Every future email open will show the new banner automatically.</em>
+        </span>
     </div>
     """, unsafe_allow_html=True)
 else:
@@ -247,10 +252,19 @@ phone_html = (
     f'{phone}</span>'
 ) if phone and phone.strip() else ""
 
+# ── Vercel endpoint base ──────────────────────────────────────────────────
+# After deploying to Vercel, replace this with your actual Vercel project URL.
+# e.g. "https://test-abc123.vercel.app"
+VERCEL_BASE_URL = "https://test-uvid.vercel.app"
+
 # PNG images hosted on GitHub (Outlook-compatible)
-LOGO_URL       = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/image/uvid/uvid.png"
-BANNER_URL     = banner_img_url    # ← editable from UI
-BANNER_LINK    = banner_link_url   # ← editable from UI
+LOGO_URL      = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/image/uvid/uvid.png"
+
+# These two endpoints are what goes into the signature HTML:
+#   banner-image → Vercel fetches banner_config.json → proxies the real image
+#   banner-click → Vercel fetches banner_config.json → 302 to the real link
+BANNER_URL    = f"{VERCEL_BASE_URL}/api/banner-image"   # ← dynamic via Vercel
+BANNER_LINK   = f"{VERCEL_BASE_URL}/api/banner-click"   # ← dynamic via Vercel
 LINKEDIN_URL   = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/image/socialMedia/linkedin.png"
 YOUTUBE_URL    = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/image/socialMedia/youtube.png"
 INSTAGRAM_URL  = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/image/socialMedia/instagram.png"

@@ -1,0 +1,22 @@
+{
+    "version": 2,
+    "functions": {
+        "api/banner-image.js": {
+            "runtime": "nodejs20.x"
+        },
+        "api/banner-click.js": {
+            "runtime": "nodejs20.x"
+        }
+    },
+    "headers": [
+        {
+            "source": "/api/(.*)",
+            "headers": [
+                {
+                    "key": "Access-Control-Allow-Origin",
+                    "value": "*"
+                }
+            ]
+        }
+    ]
+}
