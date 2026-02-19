@@ -166,13 +166,13 @@ st.markdown('<div class="section-label">👤 Personal Details</div>', unsafe_all
 
 col1, col2, col3, col4 = st.columns(4)
 with col1:
-    name = st.text_input("Full Name", "Ali Khan", placeholder="e.g. Ali Khan")
+    name = st.text_input("Full Name", "Your Name", placeholder="e.g. Ali Khan")
 with col2:
-    designation = st.text_input("Designation", "Senior Consultant", placeholder="e.g. Senior Consultant")
+    designation = st.text_input("Designation", "Your Designation", placeholder="e.g. Senior Consultant")
 with col3:
-    email = st.text_input("Email Address", "ali@uvidconsulting.com", placeholder="ali@uvidconsulting.com")
+    email = st.text_input("Email Address", "mail@uvidconsulting.com", placeholder="mail@uvidconsulting.com")
 with col4:
-    phone = st.text_input("Phone Number (optional)", "", placeholder="+91 98765 43210")
+    phone = st.text_input("Phone Number (optional)", "", placeholder="+91 8888888888")
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Banner Mode Selector
@@ -301,7 +301,7 @@ YOUTUBE_URL   = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/m
 INSTAGRAM_URL = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/image/socialMedia/instagram.png"
 EMPTY_URL     = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/image/socialMedia/empty.png"
 
-phone_line = f'<span style="color:#000000; font-family:Arial,sans-serif; font-size:9pt;">{phone}</span><br />' if phone and phone.strip() else ""
+phone_line = f'<span style="color:#000000; font-family:Roboto,sans-serif; font-size:9pt;">{phone}</span><br />' if phone and phone.strip() else ""
 
 sig_html = f"""<table cellspacing="0" cellpadding="0" border="0">
   <tbody>
@@ -324,45 +324,46 @@ sig_html = f"""<table cellspacing="0" cellpadding="0" border="0">
       </td>
 
       <!-- RIGHT: Info column -->
-      <td valign="top" style="padding:0 0 0 14px;">
+      <td valign="top" style="padding:0 0 0 8px;">
 
         <!-- Name -->
-        <span style="color:#000000; font-family:Arial,sans-serif; font-size:11pt; font-weight:bold;">{name}</span><br />
+        <span style="color:#000000; font-family:Roboto,sans-serif; font-size:12pt; font-weight:bold;">{name}</span><br />
 
         <!-- Designation -->
-        <span style="color:#555555; font-family:Arial,sans-serif; font-size:9pt;">{designation}</span><br />
+        <span style="color:#555555; font-family:Roboto,sans-serif; font-size:10pt;">{designation}</span><br />
 
         <!-- Phone (optional) -->
         {phone_line}
 
         <!-- Email -->
         <a href="mailto:{email}" style="text-decoration:none;">
-          <span style="color:#000000; font-family:Arial,sans-serif; font-size:9pt;">{email}</span>
+          <span style="color:#000000; font-family:Roboto,sans-serif; font-size:9pt;">{email}</span>
         </a><br />
 
         <!-- Website -->
         <a href="https://www.uvidconsulting.com" target="_blank" style="text-decoration:none;">
-          <span style="color:#000000; font-family:Arial,sans-serif; font-size:9pt;">www.uvidconsulting.com</span>
-        </a><br />
-
-        <!-- Social Icons: hspace adds gap without any visible dot/character -->
-        <a href="https://www.linkedin.com/company/uvidconsulting" target="_blank">
-          <img src="{LINKEDIN_URL}" nosend="1" border="0" hspace="10" vspace="10"
-               width="20" height="20" alt="LinkedIn"
-               style="border:0; width:20px; height:20px;" />
-        </a>
-        <a href="https://www.youtube.com/@uvidconsulting" target="_blank">
-          <img src="{YOUTUBE_URL}" nosend="1" border="0" hspace="10" vspace="10"
-               width="20" height="20" alt="YouTube"
-               style="border:0; width:20px; height:20px;" />
-        </a>
-        <img src="{EMPTY_URL}" nosend="1" border="0" hspace="10" vspace="10"
-               width="20" height="20"
-               style="border:0; width:20px; height:20px;" />
-        <a href="https://www.instagram.com/uvidconsulting" target="_blank">
-          <img src="{INSTAGRAM_URL}" nosend="1" border="0" hspace="10" vspace="10"
-               width="20" height="20" alt="Instagram"
-               style="border:0; width:20px; height:20px;" />
+          <span style="color:#000000; font-family:Roboto,sans-serif; font-size:9pt;">www.uvidconsulting.com</span>
+        </a><br /><br />
+        <!-- Social Icons: border=0 + text-decoration:none kills Outlook underline -->
+        <a href="https://www.linkedin.com/company/uvidconsulting" target="_blank"
+           style="text-decoration:none; border:0;">
+          <img src="{LINKEDIN_URL}" nosend="1" border="0"
+               width="18" height="18" alt="LinkedIn"
+               style="border:0; vertical-align:bottom; width:18px; height:18px;" />
+        </a><img src="{EMPTY_URL}" nosend="1" border="0"
+               width="8" height="1"
+               style="border:0; vertical-align:bottom;" /><a href="https://www.youtube.com/@uvidconsulting" target="_blank"
+           style="text-decoration:none; border:0;">
+          <img src="{YOUTUBE_URL}" nosend="1" border="0"
+               width="20" height="18" alt="YouTube"
+               style="border:0; vertical-align:bottom; width:18px; height:18px;" />
+        </a><img src="{EMPTY_URL}" nosend="1" border="0"
+               width="8" height="1"
+               style="border:0; vertical-align:bottom;" /><a href="https://www.instagram.com/uvidconsulting" target="_blank"
+           style="text-decoration:none; border:0;">
+          <img src="{INSTAGRAM_URL}" nosend="1" border="0"
+               width="18" height="18" alt="Instagram"
+               style="border:0; vertical-align:bottom; width:18px; height:18px;" />
         </a>
 
       </td>
@@ -415,7 +416,7 @@ preview_and_copy = f"""
 <style>
   * {{ margin: 0; padding: 0; box-sizing: border-box; }}
   body {{
-    font-family: 'Roboto', Arial, sans-serif;
+    font-family: 'Roboto', Roboto, sans-serif;
     font-weight: 400;
     background: #ffffff;
     padding: 24px 24px 16px 24px;
@@ -438,7 +439,7 @@ preview_and_copy = f"""
     border-radius: 7px;
     cursor: pointer;
     transition: all 0.2s ease;
-    font-family: 'Roboto', Arial, sans-serif;
+    font-family: 'Roboto', Roboto, sans-serif;
     letter-spacing: 0.2px;
   }}
   #copyBtn {{
