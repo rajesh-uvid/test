@@ -1,6 +1,7 @@
 import streamlit as st
 import streamlit.components.v1 as components
 import requests
+from data import *
 
 # ─────────────────────────────────────────────
 # 1. Page Config
@@ -166,11 +167,11 @@ st.markdown('<div class="section-label">👤 Personal Details</div>', unsafe_all
 
 col1, col2, col3, col4 = st.columns(4)
 with col1:
-    name = st.text_input("Full Name", "Your Name", placeholder="e.g. Ali Khan")
+    name = st.text_input("Full Name", DEFAULT_NAME, placeholder="e.g. Ali Khan")
 with col2:
-    designation = st.text_input("Designation", "Your Designation", placeholder="e.g. Senior Consultant")
+    designation = st.text_input("Designation", DEFAULT_DESIGNATION, placeholder="e.g. Senior Consultant")
 with col3:
-    email = st.text_input("Email Address", "mail@uvidconsulting.com", placeholder="mail@uvidconsulting.com")
+    email = st.text_input("Email Address", DEFAULT_EMAIL, placeholder=DEFAULT_EMAIL)
 with col4:
     phone = st.text_input("Phone Number (optional)", "", placeholder="+91 8888888888")
 
@@ -178,9 +179,7 @@ with col4:
 # Banner Mode Selector
 # ─────────────────────────────────────────────────────────────────────────────
 
-BANNER_CONFIG_URL    = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/banner_config.json"
-DEFAULT_BANNER_IMAGE = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/image/banner/banner.png"
-DEFAULT_BANNER_LINK  = "https://www.uvidconsulting.com"
+# All URLs and config loaded from data.py
 
 st.markdown('<div class="section-label">🖼️ Banner Mode</div>', unsafe_allow_html=True)
 
@@ -295,12 +294,6 @@ phone_html = (
     f'{phone}</span>'
 ) if phone and phone.strip() else ""
 
-LOGO_URL      = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/image/uvid/uvid.png"
-LINKEDIN_URL  = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/image/socialMedia/linkedin.png"
-YOUTUBE_URL   = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/image/socialMedia/youtube.png"
-INSTAGRAM_URL = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/image/socialMedia/instagram.png"
-EMPTY_URL     = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/image/socialMedia/empty.png"
-
 phone_line = f'<span style="color:#000000; font-family:Roboto,sans-serif; font-size:9pt;">{phone}</span><br />' if phone and phone.strip() else ""
 
 sig_html = f"""<table cellspacing="0" cellpadding="0" border="0">
@@ -308,13 +301,13 @@ sig_html = f"""<table cellspacing="0" cellpadding="0" border="0">
     <tr>
 
       <!-- LEFT: Logo — vertically & horizontally centered -->
-      <td width="190" valign="middle" align="center"
-          style="padding:0 10px 0 0; width:190px;">
-        <a href="https://uvidconsulting.com/" target="_blank">
+      <td width="{LOGO_COL_WIDTH}" valign="middle" align="center"
+          style="padding:0 10px 0 0; width:{LOGO_COL_WIDTH}px;">
+        <a href="{COMPANY_LOGO_LINK}" target="_blank">
           <img src="{LOGO_URL}"
                nosend="1" border="0"
-               width="170" alt="UVID Consulting"
-               style="display:block; border:0; width:170px; height:auto;" />
+               width="{LOGO_WIDTH}" alt="UVID Consulting"
+               style="display:block; border:0; width:{LOGO_WIDTH}px; height:auto;" />
         </a>
       </td>
 
@@ -341,29 +334,29 @@ sig_html = f"""<table cellspacing="0" cellpadding="0" border="0">
         </a><br />
 
         <!-- Website -->
-        <a href="https://www.uvidconsulting.com" target="_blank" style="text-decoration:none;">
-          <span style="color:#000000; font-family:Roboto,sans-serif; font-size:9pt;">www.uvidconsulting.com</span>
+        <a href="{COMPANY_WEBSITE}" target="_blank" style="text-decoration:none;">
+          <span style="color:#000000; font-family:Roboto,sans-serif; font-size:9pt;">{COMPANY_WEBSITE_DISPLAY}</span>
         </a><br /><br />
-        <!-- Social Icons: border=0 + text-decoration:none kills Outlook underline -->
-        <a href="https://www.linkedin.com/company/uvidconsulting" target="_blank"
+        <!-- Social Icons -->
+        <a href="{LINKEDIN_PROFILE}" target="_blank"
            style="text-decoration:none; border:0;">
           <img src="{LINKEDIN_URL}" nosend="1" border="0"
-               width="18" height="18" alt="LinkedIn"
-               style="border:0; vertical-align:bottom; width:18px; height:18px;" />
+               width="{ICON_SIZE}" height="{ICON_SIZE}" alt="LinkedIn"
+               style="border:0; vertical-align:bottom; width:{ICON_SIZE}px; height:{ICON_SIZE}px;" />
         </a><img src="{EMPTY_URL}" nosend="1" border="0"
-               width="8" height="1"
-               style="border:0; vertical-align:bottom;" /><a href="https://www.youtube.com/@uvidconsulting" target="_blank"
+               width="{ICON_SPACER_W}" height="1"
+               style="border:0; vertical-align:bottom;" /><a href="{YOUTUBE_PROFILE}" target="_blank"
            style="text-decoration:none; border:0;">
           <img src="{YOUTUBE_URL}" nosend="1" border="0"
-               width="20" height="18" alt="YouTube"
-               style="border:0; vertical-align:bottom; width:18px; height:18px;" />
+               width="{ICON_SIZE}" height="{ICON_SIZE}" alt="YouTube"
+               style="border:0; vertical-align:bottom; width:{ICON_SIZE}px; height:{ICON_SIZE}px;" />
         </a><img src="{EMPTY_URL}" nosend="1" border="0"
-               width="8" height="1"
-               style="border:0; vertical-align:bottom;" /><a href="https://www.instagram.com/uvidconsulting" target="_blank"
+               width="{ICON_SPACER_W}" height="1"
+               style="border:0; vertical-align:bottom;" /><a href="{INSTAGRAM_PROFILE}" target="_blank"
            style="text-decoration:none; border:0;">
           <img src="{INSTAGRAM_URL}" nosend="1" border="0"
-               width="18" height="18" alt="Instagram"
-               style="border:0; vertical-align:bottom; width:18px; height:18px;" />
+               width="{ICON_SIZE}" height="{ICON_SIZE}" alt="Instagram"
+               style="border:0; vertical-align:bottom; width:{ICON_SIZE}px; height:{ICON_SIZE}px;" />
         </a>
 
       </td>
@@ -381,9 +374,9 @@ sig_html = f"""<table cellspacing="0" cellpadding="0" border="0">
         <a href="{BANNER_LINK}" target="_blank">
           <img src="{BANNER_URL}"
                nosend="1" border="0"
-               width="580" height="auto"
+               width="{BANNER_WIDTH}" height="auto"
                alt="UVID Consulting Banner"
-               style="display:block; border:0; width:580px; height:auto;" />
+               style="display:block; border:0; width:{BANNER_WIDTH}px; height:auto;" />
         </a>
       </td>
     </tr>
