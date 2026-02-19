@@ -175,96 +175,115 @@ with col4:
     phone = st.text_input("Phone Number (optional)", "", placeholder="+91 98765 43210")
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Banner: Smart auto-detect — Vercel if live, else direct GitHub URLs
+# Banner Mode Selector
 # ─────────────────────────────────────────────────────────────────────────────
 
-BANNER_CONFIG_URL   = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/banner_config.json"
-VERCEL_BASE_URL     = "https://test-uvid.vercel.app"   # ← update after Vercel deploy
-VERCEL_IMAGE_EP     = f"{VERCEL_BASE_URL}/api/banner-image"
-VERCEL_CLICK_EP     = f"{VERCEL_BASE_URL}/api/banner-click"
-
+BANNER_CONFIG_URL    = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/banner_config.json"
 DEFAULT_BANNER_IMAGE = "https://raw.githubusercontent.com/rajesh-uvid/test/refs/heads/main/image/banner/banner.png"
 DEFAULT_BANNER_LINK  = "https://www.uvidconsulting.com"
 
+st.markdown('<div class="section-label">🖼️ Banner Mode</div>', unsafe_allow_html=True)
 
-@st.cache_data(ttl=300)   # Re-evaluate every 5 minutes
-def resolve_banner():
-    """
-    Priority 1 — Vercel is live: embed Vercel endpoints so the banner
-                  is fully dynamic even in already-sent emails.
-    Priority 2 — Vercel not deployed yet: fetch banner_config.json from
-                  GitHub and embed the direct image/link URLs (static
-                  but always up-to-date for newly generated signatures).
-    Priority 3 — Everything fails: use hardcoded defaults.
-    Returns (banner_url, banner_link, mode)
-      mode = "vercel" | "github" | "default"
-    """
-    # ── Try Vercel ──────────────────────────────────────────────────────────
-    try:
-        probe = requests.head(VERCEL_IMAGE_EP, timeout=4, allow_redirects=True)
-        if probe.status_code < 500:          # 200, 302 etc. → Vercel is live
-            return (VERCEL_IMAGE_EP, VERCEL_CLICK_EP, "vercel", None, None)
-    except Exception:
-        pass
+_spacer, _radio_col = st.columns([3, 2])
+with _radio_col:
+    banner_mode = st.radio(
+        "Banner source:",
+        ["🔵 GitHub (default)",
+         "🟢 Vercel (dynamic)"],
+        horizontal=True,
+        help="GitHub: fetches banner_config.json. Vercel: fully dynamic in sent emails."
+    )
 
-    # ── Try GitHub config ───────────────────────────────────────────────────
-    try:
-        r = requests.get(BANNER_CONFIG_URL, timeout=5)
-        r.raise_for_status()
-        cfg = r.json()
-        img  = cfg.get("banner_image_url", DEFAULT_BANNER_IMAGE)
-        link = cfg.get("banner_link_url",  DEFAULT_BANNER_LINK)
-        return (img, link, "github", img, link)
-    except Exception:
-        pass
+use_vercel = banner_mode.startswith("🟢")
 
-    # ── Hardcoded defaults ──────────────────────────────────────────────────
-    return (DEFAULT_BANNER_IMAGE, DEFAULT_BANNER_LINK, "default",
-            DEFAULT_BANNER_IMAGE, DEFAULT_BANNER_LINK)
+# ── GitHub mode ───────────────────────────────────────────────────────────────
+if not use_vercel:
 
+    @st.cache_data(ttl=300)
+    def fetch_github_banner():
+        try:
+            r = requests.get(BANNER_CONFIG_URL, timeout=5)
+            r.raise_for_status()
+            cfg = r.json()
+            return (
+                cfg.get("banner_image_url", DEFAULT_BANNER_IMAGE),
+                cfg.get("banner_link_url",  DEFAULT_BANNER_LINK),
+                True
+            )
+        except Exception:
+            return (DEFAULT_BANNER_IMAGE, DEFAULT_BANNER_LINK, False)
 
-BANNER_URL, BANNER_LINK, _mode, _cfg_img, _cfg_link = resolve_banner()
+    BANNER_URL, BANNER_LINK, _ok = fetch_github_banner()
 
-# ── Status badge ─────────────────────────────────────────────────────────────
-if _mode == "vercel":
-    st.markdown(f"""
-    <div style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.3);
-                border-radius:10px; padding:0.7rem 1.1rem; font-size:0.8rem;
-                color:#6ee7b7; margin-bottom:0.8rem; line-height:1.8;">
-        <strong>🟢 Mode: Vercel (fully dynamic)</strong><br>
-        <span style="opacity:0.85;">
-        Banner <code>src</code> &nbsp;→ <code style="color:#fde68a;">{VERCEL_IMAGE_EP}</code><br>
-        Banner <code>href</code> → <code style="color:#fde68a;">{VERCEL_CLICK_EP}</code><br>
-        ✅ <em>Already-sent emails will update automatically when you change
-        <code>banner_config.json</code> on GitHub.</em>
-        </span>
-    </div>
-    """, unsafe_allow_html=True)
+    if _ok:
+        st.markdown(f"""
+        <div style="background:rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.3);
+                    border-radius:10px; padding:0.65rem 1rem; font-size:0.79rem;
+                    color:#93c5fd; margin-top:0.5rem; line-height:1.8;">
+            <strong>🔵 GitHub mode — fetched from <code>banner_config.json</code></strong><br>
+            <span style="opacity:0.85;">
+            Image &nbsp;→ <code style="color:#bfdbfe;">{BANNER_URL}</code><br>
+            Link &nbsp;&nbsp;&nbsp;→ <code style="color:#bfdbfe;">{BANNER_LINK}</code><br>
+            To change: edit <code>banner_config.json</code> on GitHub and push.
+            New signatures will pick it up within 5 min.
+            </span>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown("""
+        <div style="background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.3);
+                    border-radius:10px; padding:0.65rem 1rem; font-size:0.79rem;
+                    color:#fca5a5; margin-top:0.5rem;">
+            ⚠️ Could not fetch <code>banner_config.json</code> from GitHub — using defaults.
+        </div>
+        """, unsafe_allow_html=True)
 
-elif _mode == "github":
-    st.markdown(f"""
-    <div style="background:rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.3);
-                border-radius:10px; padding:0.7rem 1.1rem; font-size:0.8rem;
-                color:#93c5fd; margin-bottom:0.8rem; line-height:1.8;">
-        <strong>🔵 Mode: GitHub config (static URLs in signature)</strong><br>
-        <span style="opacity:0.85;">
-        Vercel not detected — using direct URLs from <code>banner_config.json</code>.<br>
-        Banner image → <code style="color:#bfdbfe;">{_cfg_img}</code><br>
-        Banner link &nbsp;→ <code style="color:#bfdbfe;">{_cfg_link}</code><br>
-        ⚠️ <em>Already-sent emails won't update. Deploy to Vercel for dynamic banners.</em>
-        </span>
-    </div>
-    """, unsafe_allow_html=True)
-
+# ── Vercel mode ────────────────────────────────────────────────────────────────
 else:
-    st.markdown("""
-    <div style="background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.3);
-                border-radius:10px; padding:0.7rem 1.1rem; font-size:0.8rem;
-                color:#fca5a5; margin-bottom:0.8rem;">
-        <strong>🔴 Mode: Defaults (no config reachable)</strong><br>
-        Using hardcoded fallback URLs. Check your internet / GitHub repo visibility.
-    </div>
-    """, unsafe_allow_html=True)
+    vercel_url = st.text_input(
+        "Your Vercel project URL",
+        placeholder="https://your-project.vercel.app",
+        help="Paste the URL you get after deploying this repo to vercel.com"
+    ).rstrip("/")
+
+    if vercel_url:
+        BANNER_URL  = f"{vercel_url}/api/banner-image"
+        BANNER_LINK = f"{vercel_url}/api/banner-click"
+        st.markdown(f"""
+        <div style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.3);
+                    border-radius:10px; padding:0.65rem 1rem; font-size:0.79rem;
+                    color:#6ee7b7; margin-top:0.5rem; line-height:1.8;">
+            <strong>🟢 Vercel mode — fully dynamic banners in sent emails</strong><br>
+            <span style="opacity:0.85;">
+            Image src &nbsp;→ <code style="color:#fde68a;">{BANNER_URL}</code><br>
+            Click href → <code style="color:#fde68a;">{BANNER_LINK}</code><br>
+            ✅ Changing <code>banner_config.json</code> on GitHub updates the banner
+            in <em>every already-sent email</em> automatically.
+            </span>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        # No Vercel URL yet — fall back to GitHub config silently
+        @st.cache_data(ttl=300)
+        def fetch_github_banner_fallback():
+            try:
+                r = requests.get(BANNER_CONFIG_URL, timeout=5)
+                r.raise_for_status()
+                cfg = r.json()
+                return (cfg.get("banner_image_url", DEFAULT_BANNER_IMAGE),
+                        cfg.get("banner_link_url",  DEFAULT_BANNER_LINK))
+            except Exception:
+                return (DEFAULT_BANNER_IMAGE, DEFAULT_BANNER_LINK)
+
+        BANNER_URL, BANNER_LINK = fetch_github_banner_fallback()
+        st.markdown("""
+        <div style="background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.3);
+                    border-radius:10px; padding:0.65rem 1rem; font-size:0.79rem;
+                    color:#fde68a; margin-top:0.5rem;">
+            ⏳ Enter your Vercel URL above to enable dynamic banners.<br>
+            Using GitHub config URLs as a preview fallback for now.
+        </div>
+        """, unsafe_allow_html=True)
 
 st.markdown("<br>", unsafe_allow_html=True)
 
@@ -344,7 +363,7 @@ sig_html = f"""<table cellpadding="0" cellspacing="0" border="0"
 
     <!-- Row 2: Banner (no gap) -->
     <tr>
-        <td colspan="2" style="padding-top: 0; margin: 10px; line-height:0; font-size:0;">
+        <td colspan="2" style="padding-top: 4px; line-height:0; font-size:0;">
             <a href="{BANNER_LINK}" target="_blank" style="display:block;">
                 <img src="{BANNER_URL}"
                      alt="UVID Consulting Banner"
