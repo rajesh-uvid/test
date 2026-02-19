@@ -317,7 +317,7 @@ sig_html = f"""<table cellpadding="0" cellspacing="0" border="0"
             style="border-left: 2px solid #cccccc; padding-left: 16px;">
 
             <!-- Name -->
-            <div style="font-size:13pt; font-weight:400; color:#000000; margin-bottom:0px; line-height:1.4;">
+            <div style="font-size:12pt; font-weight:400; color:#000000; margin-bottom:0px; line-height:1.4;">
                 {name}
             </div>
 
@@ -348,14 +348,14 @@ sig_html = f"""<table cellpadding="0" cellspacing="0" border="0"
                 <a href="https://www.youtube.com/@uvidconsulting" target="_blank"
                    style="text-decoration:none; display:inline-block; margin-right:6px;">
                     <img src="{YOUTUBE_URL}" alt="YouTube"
-                         width="28" height="28"
-                         style="display:block; border:0; width:28px; height:28px;">
+                         width="32" height="34"
+                         style="display:block; border:0; width:32px; height:34px;">
                 </a>
                 <a href="https://www.instagram.com/uvidconsulting" target="_blank"
                    style="text-decoration:none; display:inline-block;">
                     <img src="{INSTAGRAM_URL}" alt="Instagram"
-                         width="28" height="28"
-                         style="display:block; border:0; width:28px; height:28px;">
+                         width="28" height="30"
+                         style="display:block; border:0; width:28px; height:30px;">
                 </a>
             </div>
         </td>
