@@ -320,7 +320,7 @@ sig_html = f"""<table cellspacing="0" cellpadding="0" border="0">
       <td valign="top" style="padding:0 0 0 8px;">
 
         <!-- Name -->
-        <span style="color:#000000; font-family:Roboto,sans-serif; font-size:12pt; font-weight:bold;">{name}</span><br />
+        <span style="color:#000000; font-family:Roboto,sans-serif; font-size:12pt;">{name}</span><br />
 
         <!-- Designation -->
         <span style="color:#555555; font-family:Roboto,sans-serif; font-size:10pt;">{designation}</span><br />
@@ -348,7 +348,7 @@ sig_html = f"""<table cellspacing="0" cellpadding="0" border="0">
                style="border:0; vertical-align:bottom;" /><a href="{YOUTUBE_PROFILE}" target="_blank"
            style="text-decoration:none; border:0;">
           <img src="{YOUTUBE_URL}" nosend="1" border="0"
-               width="{ICON_SIZE}" height="{ICON_SIZE}" alt="YouTube"
+               width="24px" height="{ICON_SIZE}" alt="YouTube"
                style="border:0; vertical-align:bottom; width:{ICON_SIZE}px; height:{ICON_SIZE}px;" />
         </a><img src="{EMPTY_URL}" nosend="1" border="0"
                width="{ICON_SPACER_W}" height="1"
